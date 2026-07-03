@@ -13,32 +13,36 @@ A real-time infrastructure monitoring dashboard — tracks service health, respo
 - **Active alerts panel** — severity-tagged (info / warning / critical) alert feed
 - **Auto-refresh** — polls every 10 seconds via TanStack Query's `refetchInterval`
 - **Dark, ops-dashboard UI** styled with Tailwind CSS
+- **React Compiler enabled** for automatic memoisation
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | React 19 |
+| Framework | React 19 + Vite |
 | Language | TypeScript |
-| Build tool | Vite 8 |
-| Data fetching | TanStack Query |
-| HTTP client | Axios |
 | Styling | Tailwind CSS 4 |
+| Data fetching | TanStack Query 5 |
+| HTTP client | Axios |
 
-## ⚠️ Backend Required
+## Backend
 
-This repository contains the **frontend only**. It expects a REST API running at:
+This repository is the **frontend only**. It expects a REST API at:
 
 ```
 http://localhost:8090/api
 ```
 
-with these endpoints:
+The matching backend is published separately: **[InfraWatch-API](https://github.com/phiwakonkem/InfraWatch-API)** — Express, implementing exactly this contract (note: it currently returns static seeded data rather than performing real health-check polling).
+
+Endpoints the dashboard consumes:
 
 | Method | Endpoint | Returns |
 |---|---|---|
 | `GET` | `/services` | Array of `Service` objects |
 | `GET` | `/alerts` | Array of `Alert` objects |
+
+Expected shapes:
 
 ```ts
 interface Service {
@@ -61,58 +65,69 @@ interface Alert {
 }
 ```
 
-If you don't have a matching backend running, you can mock these endpoints with [json-server](https://github.com/typicode/json-server) or a small Express/Go server that returns this shape.
+Without a backend implementing these two routes, the dashboard will render with empty data. Point the `axios` base URL in `src/App.tsx` at your own monitoring API if it runs elsewhere.
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
+- Node.js 20 or later
+- npm
 
-- Node.js 20+
-- A backend matching the API contract above (see [Backend Required](#-backend-required))
-
-### 1. Clone the repository
+## Installation
 
 ```bash
+# 1. Clone and run the backend
+git clone https://github.com/phiwakonkem/InfraWatch-API.git
+cd InfraWatch-API
+npm install
+npm start
+# API now running at http://localhost:8090
+
+# 2. In a separate terminal, clone and run the frontend
 git clone https://github.com/phiwakonkem/InfraWatch-Dashboard.git
 cd InfraWatch-Dashboard
-```
-
-### 2. Install dependencies
-
-```bash
 npm install
-```
-
-### 3. Point the app at your backend
-
-The API base URL (`http://localhost:8090/api`) is set inline in `src/App.tsx`. Update it if your backend runs elsewhere.
-
-### 4. Run the development server
-
-```bash
 npm run dev
 ```
 
-Visit the URL Vite prints (typically [http://localhost:5173](http://localhost:5173)).
+The app will be running at `http://localhost:5173` (Vite's default port).
 
 ## Available Scripts
 
 | Command | Description |
 |---|---|
-| `npm run dev` | Start the Vite dev server |
+| `npm run dev` | Start the development server |
 | `npm run build` | Type-check and build for production |
-| `npm run lint` | Run ESLint |
 | `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint |
 
-## Project Status
+## Project Structure
 
-This is an early-stage prototype: the dashboard UI is fully built against a defined API contract, but a matching backend has not yet been published. Next steps would be building a lightweight health-check service that pings registered URLs and stores results.
+```
+InfraWatch-Dashboard/
+├── src/
+│   ├── App.tsx      # Dashboard UI, data fetching, and status logic
+│   ├── main.tsx
+│   ├── App.css
+│   └── assets/
+├── public/
+└── index.html
+```
+
+## Related
+
+- Backend: **[InfraWatch-API](https://github.com/phiwakonkem/InfraWatch-API)**
+
+## Roadmap
+
+- [ ] Add real health-check polling to InfraWatch-API instead of static seeded data
+- [ ] Add historical uptime charts per service
+- [ ] Add alert acknowledgement/resolution actions from the UI
 
 ## Author
 
-**Phiwakonke Mthethwa**
-Full-Stack Developer, Centurion, South Africa
+**Phiwakonke Mthethwa** — Full-Stack Developer, South Africa
+[GitHub](https://github.com/phiwakonkem) · [LinkedIn](https://www.linkedin.com/in/phiwakonke-mthethwa-97aa74331) · phiwakonkem@gmail.com
 
-- GitHub: [@phiwakonkem](https://github.com/phiwakonkem)
-- LinkedIn: [phiwakonke-mthethwa](https://www.linkedin.com/in/phiwakonke-mthethwa-97aa74331)
-- Email: phiwakonkem@gmail.com
+## License
+
+MIT
